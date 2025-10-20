@@ -1,0 +1,46 @@
+# Archivos de entorno
+.env
+.env.local
+.env.*.local
+
+# Binarios compilados
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Claude Code
+.claude/
+
+# Go
+vendor/
+*.log
+
+# Dependencias
+node_modules/
+
+# Archivos temporales
+nul
+tmp/
+temp/
+*.tmp
+
+# Docker
+docker-compose.override.yml
+
+# Documentación temporal de análisis (excluir documentos internos/históricos)
+ANALISIS_ESTADO_PROYECTO.md
+MIGRACION_PENDIENTE.md
+NORMALIZACION_COMPLETA.md
+RESUMEN_FINAL_NORMALIZACION.md
+MICROSERVICE_TEMPLATE.md

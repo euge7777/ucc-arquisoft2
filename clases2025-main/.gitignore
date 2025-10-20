@@ -1,0 +1,10 @@
+.env
+
+# Visual Studio Code
+.vscode/
+
+# GoLand/IntelliJ
+.idea/
+
+# macOS
+.DS_Store
