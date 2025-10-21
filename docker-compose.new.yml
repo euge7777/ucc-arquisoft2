@@ -124,31 +124,30 @@ services:
       - gym-network
     restart: unless-stopped
 
-  # TODO: Agregar subscriptions-api (MongoDB)
-  # subscriptions-api:
-  #   build:
-  #     context: ./subscriptions-api
-  #     dockerfile: Dockerfile
-  #   container_name: gym-subscriptions-api
-  #   environment:
-  #     PORT: 8081
-  #     MONGO_URI: mongodb://mongo:27017
-  #     MONGO_DB: gym_db
-  #     RABBITMQ_HOST: rabbitmq
-  #     RABBITMQ_PORT: 5672
-  #     RABBITMQ_USER: admin
-  #     RABBITMQ_PASS: admin
-  #     JWT_SECRET: my-super-secret-jwt-key
-  #   ports:
-  #     - "8081:8081"
-  #   depends_on:
-  #     mongo:
-  #       condition: service_healthy
-  #     rabbitmq:
-  #       condition: service_healthy
-  #   networks:
-  #     - gym-network
-  #   restart: unless-stopped
+  subscriptions-api:
+    build:
+      context: ./subscriptions-api
+      dockerfile: Dockerfile
+    container_name: gym-subscriptions-api
+    environment:
+      PORT: 8081
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DATABASE: gym_subscriptions
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672/
+      RABBITMQ_EXCHANGE: gym_events
+      USERS_API_URL: http://users-api:8080
+      PAYMENTS_API_URL: http://payments-api:8083
+      JWT_SECRET: my-super-secret-jwt-key
+    ports:
+      - "8081:8081"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - gym-network
+    restart: unless-stopped
 
   activities-api:
     build:
@@ -163,72 +162,68 @@ services:
       DB_PORT: 3306
       DB_SCHEMA: proyecto_integrador
       JWT_SECRET: my-super-secret-jwt-key
-      # TODO: Descomentar cuando el equipo implemente RabbitMQ
-      # RABBITMQ_HOST: rabbitmq
-      # RABBITMQ_PORT: 5672
-      # RABBITMQ_USER: admin
-      # RABBITMQ_PASS: admin
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672/
+      RABBITMQ_EXCHANGE: gym_events
+      USERS_API_URL: http://users-api:8080
+      SUBSCRIPTIONS_API_URL: http://subscriptions-api:8081
     ports:
       - "8082:8082"
     depends_on:
       mysql:
         condition: service_healthy
-      # rabbitmq:  # TODO: Descomentar cuando implementen RabbitMQ
-      #   condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - gym-network
     restart: unless-stopped
 
-  # TODO: Agregar payments-api (MongoDB)
-  # payments-api:
-  #   build:
-  #     context: ./payments-api
-  #     dockerfile: Dockerfile
-  #   container_name: gym-payments-api
-  #   environment:
-  #     PORT: 8083
-  #     MONGO_URI: mongodb://mongo:27017
-  #     MONGO_DB: gym_db
-  #   ports:
-  #     - "8083:8083"
-  #   depends_on:
-  #     mongo:
-  #       condition: service_healthy
-  #   networks:
-  #     - gym-network
-  #   restart: unless-stopped
+  payments-api:
+    build:
+      context: ./payments-api
+      dockerfile: Dockerfile
+    container_name: gym-payments-api
+    environment:
+      PORT: 8083
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DATABASE: payments
+    ports:
+      - "8083:8083"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - gym-network
+    restart: unless-stopped
 
-  # TODO: Agregar search-api (Solr + Memcached + RabbitMQ)
-  # search-api:
-  #   build:
-  #     context: ./search-api
-  #     dockerfile: Dockerfile
-  #   container_name: gym-search-api
-  #   environment:
-  #     PORT: 8084
-  #     SOLR_HOST: solr
-  #     SOLR_PORT: 8983
-  #     SOLR_CORE: gym_search
-  #     MEMCACHED_HOST: memcached
-  #     MEMCACHED_PORT: 11211
-  #     MEMCACHED_TTL_SECONDS: 60
-  #     RABBITMQ_HOST: rabbitmq
-  #     RABBITMQ_PORT: 5672
-  #     RABBITMQ_USER: admin
-  #     RABBITMQ_PASS: admin
-  #     RABBITMQ_QUEUE_NAME: gym-events
-  #   ports:
-  #     - "8084:8084"
-  #   depends_on:
-  #     solr:
-  #       condition: service_healthy
-  #     rabbitmq:
-  #       condition: service_healthy
-  #     memcached:
-  #       condition: service_started
-  #   networks:
-  #     - gym-network
-  #   restart: unless-stopped
+  search-api:
+    build:
+      context: ./search-api
+      dockerfile: Dockerfile
+    container_name: gym-search-api
+    environment:
+      PORT: 8084
+      SOLR_URL: http://solr:8983/solr
+      SOLR_CORE: gym_search
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672/
+      RABBITMQ_EXCHANGE: gym_events
+      RABBITMQ_QUEUE: search_indexer_queue
+      MEMCACHED_SERVERS: memcached:11211
+      CACHE_TTL: 60
+      LOCAL_CACHE_TTL: 30
+      ACTIVITIES_API_URL: http://activities-api:8082
+      SUBSCRIPTIONS_API_URL: http://subscriptions-api:8081
+    ports:
+      - "8084:8084"
+    depends_on:
+      solr:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      memcached:
+        condition: service_started
+    networks:
+      - gym-network
+    restart: unless-stopped
 
   # ==========================================
   # FRONTEND (OPCIONAL)
