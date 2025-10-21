@@ -5,25 +5,27 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yourusername/payments-api/internal/database"
-	"github.com/yourusername/payments-api/internal/models"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/yourusername/payments-api/internal/domain/dtos"
+	"github.com/yourusername/payments-api/internal/domain/entities"
+	"github.com/yourusername/payments-api/internal/repository"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type PaymentService struct {
-	db *database.MongoDB
+// PaymentServiceNew - Servicio con Dependency Injection
+type PaymentServiceNew struct {
+	paymentRepo repository.PaymentRepository
 }
 
-func NewPaymentService(db *database.MongoDB) *PaymentService {
-	return &PaymentService{
-		db: db,
+// NewPaymentServiceNew - Constructor con DI
+func NewPaymentServiceNew(paymentRepo repository.PaymentRepository) *PaymentServiceNew {
+	return &PaymentServiceNew{
+		paymentRepo: paymentRepo,
 	}
 }
 
-func (s *PaymentService) CreatePayment(ctx context.Context, req models.CreatePaymentRequest) (*models.Payment, error) {
-	payment := models.Payment{
+// CreatePayment crea un nuevo pago
+func (s *PaymentServiceNew) CreatePayment(ctx context.Context, req dtos.CreatePaymentRequest) (dtos.PaymentResponse, error) {
+	payment := entities.Payment{
 		ID:             primitive.NewObjectID(),
 		EntityType:     req.EntityType,
 		EntityID:       req.EntityID,
@@ -38,137 +40,165 @@ func (s *PaymentService) CreatePayment(ctx context.Context, req models.CreatePay
 		UpdatedAt:      time.Now(),
 	}
 
-	collection := s.db.GetCollection("payments")
-	_, err := collection.InsertOne(ctx, payment)
-	if err != nil {
-		return nil, err
+	if err := s.paymentRepo.Create(ctx, &payment); err != nil {
+		return dtos.PaymentResponse{}, fmt.Errorf("error al crear pago: %w", err)
 	}
 
-	return &payment, nil
+	return dtos.ToPaymentResponse(
+		payment.ID,
+		payment.EntityType,
+		payment.EntityID,
+		payment.UserID,
+		payment.Amount,
+		payment.Currency,
+		payment.Status,
+		payment.PaymentMethod,
+		payment.PaymentGateway,
+		payment.TransactionID,
+		payment.Metadata,
+		payment.CreatedAt,
+		payment.UpdatedAt,
+		payment.ProcessedAt,
+	), nil
 }
 
-func (s *PaymentService) GetPaymentByID(ctx context.Context, paymentID string) (*models.Payment, error) {
+// GetPaymentByID obtiene un pago por su ID
+func (s *PaymentServiceNew) GetPaymentByID(ctx context.Context, paymentID string) (dtos.PaymentResponse, error) {
 	objID, err := primitive.ObjectIDFromHex(paymentID)
 	if err != nil {
-		return nil, fmt.Errorf("ID de pago inválido")
+		return dtos.PaymentResponse{}, fmt.Errorf("ID de pago inválido")
 	}
 
-	collection := s.db.GetCollection("payments")
-	var payment models.Payment
-
-	err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&payment)
-	if err == mongo.ErrNoDocuments {
-		return nil, fmt.Errorf("pago no encontrado")
+	payment, err := s.paymentRepo.FindByID(ctx, objID)
+	if err != nil {
+		return dtos.PaymentResponse{}, err
 	}
+
+	return dtos.ToPaymentResponse(
+		payment.ID,
+		payment.EntityType,
+		payment.EntityID,
+		payment.UserID,
+		payment.Amount,
+		payment.Currency,
+		payment.Status,
+		payment.PaymentMethod,
+		payment.PaymentGateway,
+		payment.TransactionID,
+		payment.Metadata,
+		payment.CreatedAt,
+		payment.UpdatedAt,
+		payment.ProcessedAt,
+	), nil
+}
+
+// GetPaymentsByUser obtiene todos los pagos de un usuario
+func (s *PaymentServiceNew) GetPaymentsByUser(ctx context.Context, userID string) ([]dtos.PaymentResponse, error) {
+	payments, err := s.paymentRepo.FindByUser(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &payment, nil
+	responses := make([]dtos.PaymentResponse, len(payments))
+	for i, payment := range payments {
+		responses[i] = dtos.ToPaymentResponse(
+			payment.ID,
+			payment.EntityType,
+			payment.EntityID,
+			payment.UserID,
+			payment.Amount,
+			payment.Currency,
+			payment.Status,
+			payment.PaymentMethod,
+			payment.PaymentGateway,
+			payment.TransactionID,
+			payment.Metadata,
+			payment.CreatedAt,
+			payment.UpdatedAt,
+			payment.ProcessedAt,
+		)
+	}
+
+	return responses, nil
 }
 
-func (s *PaymentService) GetPaymentsByUser(ctx context.Context, userID string) ([]models.Payment, error) {
-	collection := s.db.GetCollection("payments")
-
-	cursor, err := collection.Find(ctx, bson.M{"user_id": userID})
+// GetPaymentsByEntity obtiene pagos asociados a una entidad
+func (s *PaymentServiceNew) GetPaymentsByEntity(ctx context.Context, entityType, entityID string) ([]dtos.PaymentResponse, error) {
+	payments, err := s.paymentRepo.FindByEntity(ctx, entityType, entityID)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
 
-	var payments []models.Payment
-	if err := cursor.All(ctx, &payments); err != nil {
-		return nil, err
+	responses := make([]dtos.PaymentResponse, len(payments))
+	for i, payment := range payments {
+		responses[i] = dtos.ToPaymentResponse(
+			payment.ID,
+			payment.EntityType,
+			payment.EntityID,
+			payment.UserID,
+			payment.Amount,
+			payment.Currency,
+			payment.Status,
+			payment.PaymentMethod,
+			payment.PaymentGateway,
+			payment.TransactionID,
+			payment.Metadata,
+			payment.CreatedAt,
+			payment.UpdatedAt,
+			payment.ProcessedAt,
+		)
 	}
 
-	return payments, nil
+	return responses, nil
 }
 
-func (s *PaymentService) GetPaymentsByEntity(ctx context.Context, entityType, entityID string) ([]models.Payment, error) {
-	collection := s.db.GetCollection("payments")
-
-	filter := bson.M{
-		"entity_type": entityType,
-		"entity_id":   entityID,
-	}
-
-	cursor, err := collection.Find(ctx, filter)
+// GetPaymentsByStatus obtiene pagos por estado
+func (s *PaymentServiceNew) GetPaymentsByStatus(ctx context.Context, status string) ([]dtos.PaymentResponse, error) {
+	payments, err := s.paymentRepo.FindByStatus(ctx, status)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
 
-	var payments []models.Payment
-	if err := cursor.All(ctx, &payments); err != nil {
-		return nil, err
+	responses := make([]dtos.PaymentResponse, len(payments))
+	for i, payment := range payments {
+		responses[i] = dtos.ToPaymentResponse(
+			payment.ID,
+			payment.EntityType,
+			payment.EntityID,
+			payment.UserID,
+			payment.Amount,
+			payment.Currency,
+			payment.Status,
+			payment.PaymentMethod,
+			payment.PaymentGateway,
+			payment.TransactionID,
+			payment.Metadata,
+			payment.CreatedAt,
+			payment.UpdatedAt,
+			payment.ProcessedAt,
+		)
 	}
 
-	return payments, nil
+	return responses, nil
 }
 
-func (s *PaymentService) UpdatePaymentStatus(ctx context.Context, paymentID string, req models.UpdatePaymentStatusRequest) error {
+// UpdatePaymentStatus actualiza el estado de un pago
+func (s *PaymentServiceNew) UpdatePaymentStatus(ctx context.Context, paymentID string, req dtos.UpdatePaymentStatusRequest) error {
 	objID, err := primitive.ObjectIDFromHex(paymentID)
 	if err != nil {
 		return fmt.Errorf("ID de pago inválido")
 	}
 
-	collection := s.db.GetCollection("payments")
-
-	update := bson.M{
-		"$set": bson.M{
-			"status":     req.Status,
-			"updated_at": time.Now(),
-		},
-	}
-
-	// Si el estado es "completed", agregar processed_at
-	if req.Status == "completed" {
-		now := time.Now()
-		update["$set"].(bson.M)["processed_at"] = now
-	}
-
-	// Si hay transaction_id, agregarlo
-	if req.TransactionID != "" {
-		update["$set"].(bson.M)["transaction_id"] = req.TransactionID
-	}
-
-	result, err := collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
-	if err != nil {
-		return err
-	}
-
-	if result.MatchedCount == 0 {
-		return fmt.Errorf("pago no encontrado")
-	}
-
-	return nil
-}
-
-func (s *PaymentService) GetPaymentsByStatus(ctx context.Context, status string) ([]models.Payment, error) {
-	collection := s.db.GetCollection("payments")
-
-	cursor, err := collection.Find(ctx, bson.M{"status": status})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	var payments []models.Payment
-	if err := cursor.All(ctx, &payments); err != nil {
-		return nil, err
-	}
-
-	return payments, nil
+	return s.paymentRepo.UpdateStatus(ctx, objID, req.Status, req.TransactionID)
 }
 
 // ProcessPayment simula el procesamiento de un pago
-// En producción, aquí se integraría con Stripe, MercadoPago, etc.
-func (s *PaymentService) ProcessPayment(ctx context.Context, paymentID string) error {
+func (s *PaymentServiceNew) ProcessPayment(ctx context.Context, paymentID string) error {
 	// Simular procesamiento
 	time.Sleep(100 * time.Millisecond)
 
 	// Actualizar a completado
-	req := models.UpdatePaymentStatusRequest{
+	req := dtos.UpdatePaymentStatusRequest{
 		Status:        "completed",
 		TransactionID: fmt.Sprintf("TXN-%s", paymentID),
 	}
