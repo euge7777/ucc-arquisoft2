@@ -1,14 +1,15 @@
-package consumers
+package clients
 
 import (
 	"encoding/json"
 	"log"
 
 	"github.com/streadway/amqp"
-	"github.com/yourusername/gym-management/search-api/internal/models"
+	"github.com/yourusername/gym-management/search-api/internal/domain/dtos"
 	"github.com/yourusername/gym-management/search-api/internal/services"
 )
 
+// RabbitMQConsumer - Cliente de RabbitMQ para consumir eventos
 type RabbitMQConsumer struct {
 	conn          *amqp.Connection
 	channel       *amqp.Channel
@@ -16,6 +17,7 @@ type RabbitMQConsumer struct {
 	cacheService  *services.CacheService
 }
 
+// NewRabbitMQConsumer - Constructor con DI
 func NewRabbitMQConsumer(url, exchange, queueName string, searchService *services.SearchService, cacheService *services.CacheService) (*RabbitMQConsumer, error) {
 	conn, err := amqp.Dial(url)
 	if err != nil {
@@ -92,6 +94,7 @@ func NewRabbitMQConsumer(url, exchange, queueName string, searchService *service
 	}, nil
 }
 
+// Start inicia el consumo de mensajes
 func (r *RabbitMQConsumer) Start() error {
 	msgs, err := r.channel.Consume(
 		"search_indexer_queue", // queue
@@ -118,7 +121,7 @@ func (r *RabbitMQConsumer) Start() error {
 }
 
 func (r *RabbitMQConsumer) handleMessage(msg amqp.Delivery) {
-	var event models.RabbitMQEvent
+	var event dtos.RabbitMQEvent
 
 	err := json.Unmarshal(msg.Body, &event)
 	if err != nil {
@@ -157,6 +160,7 @@ func (r *RabbitMQConsumer) handleMessage(msg amqp.Delivery) {
 	msg.Ack(false)
 }
 
+// Close cierra las conexiones
 func (r *RabbitMQConsumer) Close() error {
 	if r.channel != nil {
 		r.channel.Close()

@@ -6,25 +6,26 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/yourusername/gym-management/search-api/internal/models"
+	"github.com/yourusername/gym-management/search-api/internal/domain/dtos"
 )
 
-// SearchService maneja las operaciones de búsqueda
+// SearchService - Servicio de búsqueda con indexación en memoria
 // NOTA: Esta es una implementación en memoria para desarrollo
 // En producción, reemplazar con integración real a Apache Solr
 type SearchService struct {
-	documents map[string]models.SearchDocument
+	documents map[string]dtos.SearchDocument
 	mu        sync.RWMutex
 }
 
+// NewSearchService - Constructor
 func NewSearchService() *SearchService {
 	return &SearchService{
-		documents: make(map[string]models.SearchDocument),
+		documents: make(map[string]dtos.SearchDocument),
 	}
 }
 
 // IndexDocument indexa un documento
-func (s *SearchService) IndexDocument(doc models.SearchDocument) error {
+func (s *SearchService) IndexDocument(doc dtos.SearchDocument) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -42,7 +43,7 @@ func (s *SearchService) DeleteDocument(id string) error {
 }
 
 // Search realiza una búsqueda en los documentos
-func (s *SearchService) Search(req models.SearchRequest) (*models.SearchResponse, error) {
+func (s *SearchService) Search(req dtos.SearchRequest) (*dtos.SearchResponse, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -54,7 +55,7 @@ func (s *SearchService) Search(req models.SearchRequest) (*models.SearchResponse
 		req.PageSize = 10
 	}
 
-	var results []models.SearchDocument
+	var results []dtos.SearchDocument
 
 	// Filtrar documentos
 	for _, doc := range s.documents {
@@ -71,7 +72,7 @@ func (s *SearchService) Search(req models.SearchRequest) (*models.SearchResponse
 	end := start + req.PageSize
 
 	if start >= totalCount {
-		results = []models.SearchDocument{}
+		results = []dtos.SearchDocument{}
 	} else {
 		if end > totalCount {
 			end = totalCount
@@ -79,7 +80,7 @@ func (s *SearchService) Search(req models.SearchRequest) (*models.SearchResponse
 		results = results[start:end]
 	}
 
-	return &models.SearchResponse{
+	return &dtos.SearchResponse{
 		Results:    results,
 		TotalCount: totalCount,
 		Page:       req.Page,
@@ -89,7 +90,7 @@ func (s *SearchService) Search(req models.SearchRequest) (*models.SearchResponse
 }
 
 // matchesSearch verifica si un documento coincide con los criterios de búsqueda
-func (s *SearchService) matchesSearch(doc models.SearchDocument, req models.SearchRequest) bool {
+func (s *SearchService) matchesSearch(doc dtos.SearchDocument, req dtos.SearchRequest) bool {
 	// Filtrar por tipo si se especifica
 	if req.Type != "" && doc.Type != req.Type {
 		return false
@@ -142,7 +143,7 @@ func (s *SearchService) matchesSearch(doc models.SearchDocument, req models.Sear
 }
 
 // GetDocumentByID obtiene un documento por ID
-func (s *SearchService) GetDocumentByID(id string) (*models.SearchDocument, error) {
+func (s *SearchService) GetDocumentByID(id string) (*dtos.SearchDocument, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -155,14 +156,14 @@ func (s *SearchService) GetDocumentByID(id string) (*models.SearchDocument, erro
 }
 
 // IndexFromEvent indexa un documento desde un evento de RabbitMQ
-func (s *SearchService) IndexFromEvent(event models.RabbitMQEvent) error {
+func (s *SearchService) IndexFromEvent(event dtos.RabbitMQEvent) error {
 	// Convertir data a SearchDocument
 	docBytes, err := json.Marshal(event.Data)
 	if err != nil {
 		return err
 	}
 
-	var doc models.SearchDocument
+	var doc dtos.SearchDocument
 	if err := json.Unmarshal(docBytes, &doc); err != nil {
 		return err
 	}

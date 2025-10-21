@@ -1,6 +1,7 @@
-package models
+package dtos
 
-// SearchDocument representa un documento genérico en Solr
+// SearchDocument - DTO que representa un documento genérico indexado
+// Puede ser una actividad, plan o suscripción
 type SearchDocument struct {
 	ID   string `json:"id"`
 	Type string `json:"type"` // activity, plan, subscription
@@ -32,7 +33,7 @@ type SearchDocument struct {
 	UpdatedAt string `json:"updated_at,omitempty"`
 }
 
-// SearchRequest representa una petición de búsqueda
+// SearchRequest - DTO para peticiones de búsqueda
 type SearchRequest struct {
 	Query      string            `json:"query"`      // Término de búsqueda
 	Filters    map[string]string `json:"filters"`    // Filtros: categoria, dia, etc.
@@ -43,7 +44,7 @@ type SearchRequest struct {
 	SortOrder  string            `json:"sort_order"` // asc o desc
 }
 
-// SearchResponse representa la respuesta de búsqueda
+// SearchResponse - DTO de respuesta con resultados de búsqueda
 type SearchResponse struct {
 	Results    []SearchDocument `json:"results"`
 	TotalCount int              `json:"total_count"`
@@ -52,11 +53,25 @@ type SearchResponse struct {
 	TotalPages int              `json:"total_pages"`
 }
 
-// RabbitMQEvent representa un evento recibido de RabbitMQ
+// RabbitMQEvent - DTO para eventos recibidos de RabbitMQ
 type RabbitMQEvent struct {
 	Action    string                 `json:"action"` // create, update, delete
 	Type      string                 `json:"type"`   // activity, plan, subscription
 	ID        string                 `json:"id"`
 	Timestamp string                 `json:"timestamp"`
 	Data      map[string]interface{} `json:"data,omitempty"`
+}
+
+// StatsResponse - DTO de respuesta con estadísticas del índice
+type StatsResponse struct {
+	TotalDocuments int            `json:"total_documents"`
+	DocumentsByType map[string]int `json:"documents_by_type"`
+	CacheStats     *CacheStats    `json:"cache_stats,omitempty"`
+}
+
+// CacheStats - DTO con estadísticas del caché
+type CacheStats struct {
+	LocalCacheSize  int `json:"local_cache_size"`
+	LocalCacheHits  int `json:"local_cache_hits"`
+	LocalCacheMisses int `json:"local_cache_misses"`
 }
