@@ -85,11 +85,12 @@ ucc-arquisoft2/
 │
 ├── docker-compose.new.yml  # Infraestructura completa
 │
-├── ARQUITECTURA_MICROSERVICIOS.md  # Patrones y decisiones arquitectónicas
-├── DIAGRAMA_ENTIDADES.md           # Modelo de datos completo
-├── GUIA_IMPLEMENTAR_MICROSERVICIO.md
-├── GUIA_COMPLETA_MICROSERVICIOS.md
-└── INSTRUCCIONES_DOCKER.md
+└── documentacion/          # Documentación general del proyecto
+    ├── ARQUITECTURA_MICROSERVICIOS.md
+    ├── DIAGRAMA_ENTIDADES.md
+    ├── GUIA_IMPLEMENTAR_MICROSERVICIO.md
+    ├── GUIA_COMPLETA_MICROSERVICIOS.md
+    └── INSTRUCCIONES_DOCKER.md
 ```
 
 ---
@@ -98,11 +99,11 @@ ucc-arquisoft2/
 
 ### Documentación General
 
-- **[ARQUITECTURA_MICROSERVICIOS.md](ARQUITECTURA_MICROSERVICIOS.md)** - Patrones de diseño y decisiones arquitectónicas
-- **[DIAGRAMA_ENTIDADES.md](DIAGRAMA_ENTIDADES.md)** - Modelo de datos completo con relaciones
-- **[GUIA_IMPLEMENTAR_MICROSERVICIO.md](GUIA_IMPLEMENTAR_MICROSERVICIO.md)** - Guía para crear nuevos microservicios
-- **[GUIA_COMPLETA_MICROSERVICIOS.md](GUIA_COMPLETA_MICROSERVICIOS.md)** - Guía de uso del sistema completo
-- **[INSTRUCCIONES_DOCKER.md](INSTRUCCIONES_DOCKER.md)** - Instrucciones para Docker
+- **[ARQUITECTURA_MICROSERVICIOS.md](documentacion/ARQUITECTURA_MICROSERVICIOS.md)** - Patrones de diseño y decisiones arquitectónicas
+- **[DIAGRAMA_ENTIDADES.md](documentacion/DIAGRAMA_ENTIDADES.md)** - Modelo de datos completo con relaciones
+- **[GUIA_IMPLEMENTAR_MICROSERVICIO.md](documentacion/GUIA_IMPLEMENTAR_MICROSERVICIO.md)** - Guía para crear nuevos microservicios
+- **[GUIA_COMPLETA_MICROSERVICIOS.md](documentacion/GUIA_COMPLETA_MICROSERVICIOS.md)** - Guía de uso del sistema completo
+- **[INSTRUCCIONES_DOCKER.md](documentacion/INSTRUCCIONES_DOCKER.md)** - Instrucciones para Docker
 
 ### Documentación por Microservicio
 
@@ -303,7 +304,7 @@ curl "http://localhost:8084/search?q=yoga&type=activity"
 
 Para preguntas o problemas:
 1. Revisar la documentación del microservicio específico
-2. Consultar [ARQUITECTURA_MICROSERVICIOS.md](ARQUITECTURA_MICROSERVICIOS.md)
+2. Consultar [ARQUITECTURA_MICROSERVICIOS.md](documentacion/ARQUITECTURA_MICROSERVICIOS.md)
 3. Verificar logs: `docker-compose logs <servicio>`
 
 ---
