@@ -2,48 +2,48 @@
 
 Sistema de gestión de gimnasio implementado con **arquitectura de microservicios** en Go.
 
-## 🚨 LEE ESTO PRIMERO
+## 🚀 Inicio Rápido
 
-**⚠️ Este proyecto está PARCIALMENTE IMPLEMENTADO**
+### 1. Levantar Infraestructura
 
-### Estado Real:
+```bash
+# Levantar bases de datos y servicios
+docker-compose -f docker-compose.new.yml up -d mysql mongodb rabbitmq memcached
+```
 
-| Microservicio | ¿Funciona? | Arquitectura Correcta | Archivos Viejos |
-|---------------|------------|----------------------|-----------------|
-| users-api | ✅ SÍ | ❌ NO | ⚠️ `handlers/`, `models/` |
-| subscriptions-api | ✅ SÍ | ✅ **SÍ** (Ejemplo) | ✅ Ninguno |
-| activities-api | ✅ SÍ | ❌ NO | ⚠️ `handlers/`, `models/` |
-| payments-api | ❌ NO | ❌ NO | ⚠️ Estructura vieja |
-| search-api | ❌ NO | ❌ NO | ⚠️ Estructura vieja |
+### 2. Ejecutar Microservicios
 
-**Solo 1 de 5 microservicios** tiene arquitectura limpia completa: **`subscriptions-api`**
+```bash
+# users-api
+cd users-api
+go run cmd/api/main.go  # Puerto 8080
 
----
+# subscriptions-api
+cd subscriptions-api
+go run cmd/api/main.go  # Puerto 8081
 
-## 📖 Documentación (Leer en ESTE orden)
+# activities-api
+cd activities-api
+go run cmd/api/main.go  # Puerto 8082
 
-### 🎯 Documentos CRÍTICOS:
+# payments-api
+cd payments-api
+go run cmd/api/main.go  # Puerto 8083
 
-1. **[`RESUMEN_HONESTO.md`](RESUMEN_HONESTO.md)** ⭐⭐⭐
-   - **EMPIEZA AQUÍ**
-   - Estado real de cada microservicio
-   - Qué funciona y qué no
+# search-api
+cd search-api
+go run cmd/api/main.go  # Puerto 8084
+```
 
-2. **[`ARCHIVOS_A_REFACTORIZAR.md`](ARCHIVOS_A_REFACTORIZAR.md)** ⭐⭐
-   - Archivos viejos a eliminar
-   - Instrucciones por microservicio
+### 3. Verificar Health Checks
 
-3. **[`subscriptions-api/README.md`](subscriptions-api/README.md)** ⭐⭐
-   - **Ejemplo de referencia**
-   - Arquitectura limpia explicada
-   - DTOs, Repository, DI
-
-### 📚 Documentos de Referencia:
-
-4. [`LEEME_PRIMERO.md`](LEEME_PRIMERO.md) - Conceptos y arquitectura
-5. [`ESTADO_IMPLEMENTACION.md`](ESTADO_IMPLEMENTACION.md) - Estado detallado
-6. [`ARQUITECTURA_MICROSERVICIOS.md`](ARQUITECTURA_MICROSERVICIOS.md) - Patrones
-7. [`DIAGRAMA_ENTIDADES.md`](DIAGRAMA_ENTIDADES.md) - Modelo de datos
+```bash
+curl http://localhost:8080/healthz  # users-api
+curl http://localhost:8081/healthz  # subscriptions-api
+curl http://localhost:8082/healthz  # activities-api
+curl http://localhost:8083/healthz  # payments-api
+curl http://localhost:8084/healthz  # search-api
+```
 
 ---
 
@@ -52,186 +52,272 @@ Sistema de gestión de gimnasio implementado con **arquitectura de microservicio
 ```
 Frontend (React)
      │
-     ├─→ users-api (8080)        ✅ Funciona (estructura vieja)
-     ├─→ subscriptions-api (8081) ✅ Funciona (arquitectura correcta) ⭐
-     ├─→ activities-api (8082)   ✅ Funciona (estructura vieja)
-     ├─→ payments-api (8083)     ❌ No funciona
-     └─→ search-api (8084)       ❌ No funciona
-          │
-          ├─→ RabbitMQ (5672)
-          └─→ Memcached (11211)
+     ├─→ users-api (8080)         MySQL
+     ├─→ subscriptions-api (8081)  MongoDB + RabbitMQ
+     ├─→ activities-api (8082)    MySQL + RabbitMQ
+     ├─→ payments-api (8083)      MongoDB
+     └─→ search-api (8084)        In-Memory + RabbitMQ + Memcached
 ```
 
-### Bases de Datos:
-- **MySQL** - users-api, activities-api
-- **MongoDB** - subscriptions-api, payments-api
+### Microservicios
+
+| Servicio | Puerto | Base de Datos | Estado | Descripción |
+|----------|--------|---------------|--------|-------------|
+| **users-api** | 8080 | MySQL | ✅ Funcional | Autenticación, JWT, CRUD usuarios |
+| **subscriptions-api** | 8081 | MongoDB | ✅ Funcional | Planes y suscripciones + eventos |
+| **activities-api** | 8082 | MySQL | ✅ Funcional | Actividades, sucursales, inscripciones |
+| **payments-api** | 8083 | MongoDB | ✅ Funcional | Pagos genéricos, gateways múltiples |
+| **search-api** | 8084 | In-Memory | ✅ Funcional | Búsqueda con caché de 2 niveles |
 
 ---
 
-## 🚀 Inicio Rápido
+## 📁 Estructura del Proyecto
 
-### 1. Levantar Infraestructura
-
-```bash
-# Levantar bases de datos y RabbitMQ
-docker-compose -f docker-compose.new.yml up -d mysql mongodb rabbitmq memcached
 ```
-
-### 2. Ejecutar Microservicios Funcionales
-
-```bash
-# users-api
-cd users-api
-go run cmd/api/main.go  # Puerto 8080
-
-# subscriptions-api (EJEMPLO DE REFERENCIA)
-cd subscriptions-api
-go run cmd/api/main.go  # Puerto 8081
-
-# activities-api
-cd activities-api
-go run cmd/api/main.go  # Puerto 8082
-```
-
-### 3. Verificar
-
-```bash
-curl http://localhost:8080/healthz  # users-api
-curl http://localhost:8081/healthz  # subscriptions-api
-curl http://localhost:8082/healthz  # activities-api
+ucc-arquisoft2/
+│
+├── users-api/              # Autenticación y gestión de usuarios
+├── subscriptions-api/      # Planes y suscripciones (⭐ Ejemplo de referencia)
+├── activities-api/         # Actividades e inscripciones
+├── payments-api/           # Sistema de pagos con múltiples gateways
+├── search-api/             # Búsqueda y caché
+├── frontend/               # Aplicación React
+│
+├── docker-compose.new.yml  # Infraestructura completa
+│
+├── ARQUITECTURA_MICROSERVICIOS.md  # Patrones y decisiones arquitectónicas
+├── DIAGRAMA_ENTIDADES.md           # Modelo de datos completo
+├── GUIA_IMPLEMENTAR_MICROSERVICIO.md
+├── GUIA_COMPLETA_MICROSERVICIOS.md
+└── INSTRUCCIONES_DOCKER.md
 ```
 
 ---
 
-## ⚠️ Microservicios que NO funcionan
+## 📚 Documentación
 
-### payments-api ❌
-**Estado**: Solo estructura básica con archivos viejos
+### Documentación General
 
-**Acción requerida**:
-1. Leer [`RESUMEN_HONESTO.md`](RESUMEN_HONESTO.md)
-2. Leer [`ARCHIVOS_A_REFACTORIZAR.md`](ARCHIVOS_A_REFACTORIZAR.md)
-3. Eliminar archivos viejos
-4. Implementar desde cero usando `subscriptions-api` como base
+- **[ARQUITECTURA_MICROSERVICIOS.md](ARQUITECTURA_MICROSERVICIOS.md)** - Patrones de diseño y decisiones arquitectónicas
+- **[DIAGRAMA_ENTIDADES.md](DIAGRAMA_ENTIDADES.md)** - Modelo de datos completo con relaciones
+- **[GUIA_IMPLEMENTAR_MICROSERVICIO.md](GUIA_IMPLEMENTAR_MICROSERVICIO.md)** - Guía para crear nuevos microservicios
+- **[GUIA_COMPLETA_MICROSERVICIOS.md](GUIA_COMPLETA_MICROSERVICIOS.md)** - Guía de uso del sistema completo
+- **[INSTRUCCIONES_DOCKER.md](INSTRUCCIONES_DOCKER.md)** - Instrucciones para Docker
 
-### search-api ❌
-**Estado**: Solo estructura básica con archivos viejos
+### Documentación por Microservicio
 
-**Acción requerida**:
-1. Leer [`RESUMEN_HONESTO.md`](RESUMEN_HONESTO.md)
-2. Leer [`ARCHIVOS_A_REFACTORIZAR.md`](ARCHIVOS_A_REFACTORIZAR.md)
-3. Eliminar archivos viejos (`handlers/`, `clients/`, `models/`)
-4. Refactorizar usando `subscriptions-api` como base
+Cada microservicio tiene su propio README con detalles específicos:
+
+- [users-api/README.md](users-api/README.md) - API de usuarios y autenticación
+- [subscriptions-api/README.md](subscriptions-api/README.md) - ⭐ **Ejemplo de referencia con arquitectura limpia**
+- [activities-api/README.md](activities-api/README.md) - API de actividades
+- [payments-api/README.md](payments-api/README.md) - API de pagos con gateways
+  - [ARQUITECTURA_GATEWAYS_PAGOS.md](payments-api/ARQUITECTURA_GATEWAYS_PAGOS.md) - Arquitectura de gateways
+  - [GUIA_IMPLEMENTACION_GATEWAYS.md](payments-api/GUIA_IMPLEMENTACION_GATEWAYS.md) - Guía de implementación
+- [search-api/README.md](search-api/README.md) - API de búsqueda
 
 ---
 
-## 📦 Arquitectura Correcta (subscriptions-api)
+## 🎯 Características Destacadas
 
-**Solo este microservicio tiene la implementación correcta:**
+### Patrones Implementados
+
+- **Arquitectura Limpia** (Clean Architecture)
+  - Separación de capas: Domain, Repository, Services, Controllers
+  - Dependency Injection manual
+  - DTOs separados de Entities
+
+- **Event-Driven Architecture**
+  - RabbitMQ para comunicación asíncrona
+  - Eventos: subscription.created, inscription.created, etc.
+
+- **Cache-Aside Pattern**
+  - Caché de dos niveles (CCache local + Memcached distribuido)
+  - TTL configurables
+
+- **Repository Pattern**
+  - Abstracción de acceso a datos
+  - Interfaces + implementaciones (MongoDB, MySQL)
+
+- **Gateway Pattern** (en payments-api)
+  - Integración con múltiples pasarelas de pago
+  - Strategy Pattern para intercambiar gateways
+  - Factory Pattern para creación de instancias
+
+### Seguridad
+
+- **JWT Authentication** (users-api)
+- **Password Hashing** (SHA-256)
+- **Validación de Contraseñas Fuertes**
+- **CORS Configurado**
+
+### Observabilidad
+
+- **Health Checks** en todos los servicios
+- **Logs Estructurados**
+- **Headers de Caché** (`X-Cache: HIT/MISS`)
+
+---
+
+## 🔄 Flujos de Datos
+
+### Flujo 1: Crear Suscripción
+
+```
+1. Usuario → POST /subscriptions → subscriptions-api
+2. subscriptions-api valida usuario con users-api (HTTP)
+3. subscriptions-api crea suscripción con estado "pendiente_pago"
+4. Publica evento a RabbitMQ: subscription.created
+5. search-api consume evento y indexa
+```
+
+### Flujo 2: Crear Inscripción
+
+```
+1. Usuario → POST /inscripciones → activities-api
+2. activities-api valida usuario y suscripción activa
+3. activities-api crea inscripción
+4. Publica evento a RabbitMQ: inscription.created
+5. search-api actualiza cupo disponible
+```
+
+### Flujo 3: Búsqueda con Caché
+
+```
+1. Usuario → GET /search?q=yoga → search-api
+2. Busca en CCache local (30s TTL)
+   ├─ HIT → Return + Header "X-Cache: HIT"
+   └─ MISS → Busca en Memcached (60s TTL)
+       ├─ HIT → Guarda en CCache → Return
+       └─ MISS → Ejecuta búsqueda → Guarda en ambos → Return
+```
+
+---
+
+## 🛠️ Tecnologías
+
+### Backend
+- **Go 1.23** - Todos los microservicios
+- **Gin** - Framework web HTTP
+
+### Bases de Datos
+- **MySQL 8.0** - users-api, activities-api
+- **MongoDB 7.0** - subscriptions-api, payments-api
+
+### Mensajería y Caché
+- **RabbitMQ 3.12** - Comunicación asíncrona
+- **Memcached 1.6** - Caché distribuido
+- **CCache** - Caché local in-memory
+
+### Infraestructura
+- **Docker & Docker Compose**
+- **Apache Solr 9** (opcional para search-api)
+
+---
+
+## 📊 Arquitectura Limpia (subscriptions-api)
+
+**subscriptions-api es el ejemplo de referencia** que implementa correctamente todos los patrones:
 
 ```
 subscriptions-api/
-├── cmd/api/main.go                # ✅ DI manual
+├── cmd/api/main.go                    # ✅ DI manual completa
 ├── internal/
 │   ├── domain/
-│   │   ├── entities/              # ✅ Entidades de BD
-│   │   └── dtos/                  # ✅ DTOs API
-│   ├── repository/                # ✅ Interfaces + Mongo
-│   ├── services/                  # ✅ Lógica con DI
-│   ├── infrastructure/            # ✅ Servicios externos
-│   └── controllers/               # ✅ HTTP handlers
+│   │   ├── entities/                  # ✅ Entidades de BD
+│   │   └── dtos/                      # ✅ DTOs Request/Response
+│   ├── repository/                    # ✅ Interfaces + MongoDB
+│   ├── services/                      # ✅ Lógica de negocio con DI
+│   ├── infrastructure/                # ✅ Servicios externos
+│   ├── controllers/                   # ✅ Capa HTTP
+│   ├── middleware/
+│   ├── database/
+│   └── config/
 ```
 
-**Ver [`subscriptions-api/README.md`](subscriptions-api/README.md) para detalles.**
+**Ver [subscriptions-api/README.md](subscriptions-api/README.md) para detalles completos.**
 
 ---
 
-## ❌ Estructura Incorrecta (resto)
+## 🧪 Testing Rápido
 
-**users-api, activities-api, payments-api, search-api tienen:**
+### Registrar Usuario
 
+```bash
+curl -X POST http://localhost:8080/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "username": "juanp",
+    "email": "juan@example.com",
+    "password": "Password123"
+  }'
 ```
-microservicio-api/
-├── internal/
-│   ├── handlers/      ❌ Debería ser "controllers"
-│   ├── models/        ❌ Debería estar separado en entities/ y dtos/
-│   ├── clients/       ❌ Debería ser "infrastructure"
-│   └── services/      ⚠️ Sin DI
+
+### Crear Plan
+
+```bash
+curl -X POST http://localhost:8081/plans \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Plan Premium",
+    "descripcion": "Acceso completo",
+    "precio_mensual": 100.00,
+    "tipo_acceso": "completo",
+    "duracion_dias": 30,
+    "activo": true
+  }'
 ```
 
-**Ver [`ARCHIVOS_A_REFACTORIZAR.md`](ARCHIVOS_A_REFACTORIZAR.md) para detalles.**
+### Buscar Actividades
+
+```bash
+curl "http://localhost:8084/search?q=yoga&type=activity"
+```
 
 ---
 
-## 🎯 Para Equipos de Desarrollo
+## 🚧 Próximos Pasos
 
-### Si vas a trabajar en payments-api o search-api:
+### Corto Plazo
+- [ ] Implementar frontend completo (React)
+- [ ] Agregar tests unitarios y de integración
+- [ ] Migrar search-api a Apache Solr
+- [ ] Implementar métricas (Prometheus + Grafana)
 
-1. **NO ejecutes `go run` directamente** - no funcionará
-2. **Primero lee**:
-   - [`RESUMEN_HONESTO.md`](RESUMEN_HONESTO.md)
-   - [`ARCHIVOS_A_REFACTORIZAR.md`](ARCHIVOS_A_REFACTORIZAR.md)
-   - [`subscriptions-api/README.md`](subscriptions-api/README.md)
-3. **Elimina archivos viejos** según las instrucciones
-4. **Implementa desde cero** usando `subscriptions-api` como referencia
+### Mediano Plazo
+- [ ] API Gateway (Kong/Traefik)
+- [ ] Service Discovery (Consul)
+- [ ] Distributed Tracing (Jaeger)
+- [ ] Autenticación OAuth2
 
-### Si vas a trabajar en users-api o activities-api:
-
-- ✅ Ya funcionan, puedes usarlos
-- ⚠️ Tienen estructura vieja (pero funcional)
-- Decisión de equipo si refactorizar o dejar como están
-
----
-
-## 📊 Progreso Real
-
-- **Funcionalidad**: 50% (3 de 5 microservicios funcionan)
-- **Arquitectura Limpia**: 20% (solo 1 de 5 correctos)
-- **Documentación**: 100% ✅
+### Largo Plazo
+- [ ] Migrar a Kubernetes
+- [ ] CI/CD completo (GitHub Actions)
+- [ ] Monitoreo avanzado (ELK Stack)
 
 ---
 
-## 🆘 ¿Por dónde empiezo?
+## 🆘 Soporte
 
-### Si eres nuevo:
-1. Lee [`RESUMEN_HONESTO.md`](RESUMEN_HONESTO.md) (5 min)
-2. Lee [`subscriptions-api/README.md`](subscriptions-api/README.md) (15 min)
-3. Explora el código de `subscriptions-api/` (30 min)
-
-### Si vas a implementar payments-api o search-api:
-1. Lee [`ARCHIVOS_A_REFACTORIZAR.md`](ARCHIVOS_A_REFACTORIZAR.md)
-2. Sigue las instrucciones específicas de tu microservicio
-3. Usa `subscriptions-api/` como referencia constante
+Para preguntas o problemas:
+1. Revisar la documentación del microservicio específico
+2. Consultar [ARQUITECTURA_MICROSERVICIOS.md](ARQUITECTURA_MICROSERVICIOS.md)
+3. Verificar logs: `docker-compose logs <servicio>`
 
 ---
 
-## 🔗 Enlaces Rápidos
+## 👥 Equipo
 
-- [Resumen Honesto](RESUMEN_HONESTO.md) ⭐
-- [Archivos a Refactorizar](ARCHIVOS_A_REFACTORIZAR.md) ⭐
-- [Ejemplo de Referencia](subscriptions-api/README.md) ⭐
-- [Estado Detallado](ESTADO_IMPLEMENTACION.md)
-- [Guía General](LEEME_PRIMERO.md)
-- [Arquitectura](ARQUITECTURA_MICROSERVICIOS.md)
-- [Modelo de Datos](DIAGRAMA_ENTIDADES.md)
+Proyecto desarrollado como parte de **Arquitectura de Software II** - Universidad Católica de Córdoba
 
 ---
 
-## 📝 Tecnologías
-
-- **Backend**: Go 1.23
-- **Bases de Datos**: MySQL 8.0, MongoDB 7.0
-- **Mensajería**: RabbitMQ 3.12
-- **Caché**: Memcached 1.6
-- **Framework Web**: Gin
-- **Contenedores**: Docker & Docker Compose
-
----
-
-## ⚖️ Licencia
+## 📄 Licencia
 
 Proyecto académico - Universidad Católica de Córdoba
 
 ---
 
-**Recuerda**: Solo `subscriptions-api` tiene la arquitectura correcta. Úsalo como referencia.
+**Última actualización**: 2025-01-15
