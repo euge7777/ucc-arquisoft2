@@ -39,7 +39,7 @@ const Login = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    username: username.trim(),
+                    username_or_email: username.trim(),
                     password: password
                 })
             });
@@ -56,7 +56,7 @@ const Login = () => {
             }
 
         } catch (error) {
-            setError("Error de conexión");
+            setError("Error de conexiónassad");
             console.error("Error de conexión:", error);
         } finally {
             setIsLoading(false);
