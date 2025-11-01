@@ -3,6 +3,7 @@ import '../styles/Login.css';
 import { useNavigate } from "react-router-dom";
 
 const getTokenPayload = (token) => {
+    if (!token) return null; 
     const parts = token.split('.');
     const decodedPaylod = atob(parts[1]);
 
@@ -11,6 +12,7 @@ const getTokenPayload = (token) => {
 
 const storeUserSession = (accessToken) => {
     const payload = getTokenPayload(accessToken)
+    if (!payload) return;
     const admin = payload.is_admin;
     const idUsuario = payload.id_usuario
 
@@ -46,7 +48,13 @@ const Login = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                storeUserSession(data.access_token)
+
+                if (!data.token) {
+                    setError("No se recibió ningún token del servidor");
+                    return;
+                }
+                
+                storeUserSession(data.token)
                 
                 navigate("/");
             } else {
@@ -56,7 +64,7 @@ const Login = () => {
             }
 
         } catch (error) {
-            setError("Error de conexiónassad");
+            setError("Error de conexión");
             console.error("Error de conexión:", error);
         } finally {
             setIsLoading(false);

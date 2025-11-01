@@ -36,7 +36,7 @@ const Register = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:8080/register', {
+            const response = await fetch("http://localhost:8080/register", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,9 +44,9 @@ const Register = () => {
                 body: JSON.stringify({
                     nombre: formData.nombre.trim(),
                     apellido: formData.apellido.trim(),
-                    username: formData.username.trim(), // CORRECTO: username
-                    email: formData.email.trim(),       // CORRECTO: email
-                    password: formData.password.trim() // CORRECTO: password
+                    username: formData.username.trim(), 
+                    email: formData.email.trim(),       
+                    password: formData.password.trim() 
                 })
             });
 
