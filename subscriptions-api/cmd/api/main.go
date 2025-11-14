@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -53,18 +54,42 @@ func main() {
 	)
 	healthService := services.NewHealthService(mongoDB.Client, eventPublisher)
 
-	// 6. Inicializar Controllers (Capa HTTP) con DI
+	// 6. Inicializar Payment Event Handler y Consumer
+	paymentHandler := services.NewPaymentEventHandlerService(subscriptionService)
+
+	// Intentar conectar al consumidor de eventos de pago
+	paymentConsumer, err := clients.NewPaymentEventConsumer(
+		cfg.RabbitMQURL,
+		cfg.RabbitMQExchange,
+		"subscriptions-api.payment-events", // nombre de la cola
+	)
+	if err != nil {
+		log.Printf("⚠️  Warning: No se pudo conectar al consumidor de eventos de pago: %v", err)
+		log.Println("⚠️  Las suscripciones NO se activarán automáticamente al completar pagos")
+	} else {
+		defer paymentConsumer.Close()
+
+		// Iniciar el consumo de eventos en background
+		ctx := context.Background()
+		if err := paymentConsumer.StartConsuming(ctx, paymentHandler); err != nil {
+			log.Printf("❌ Error iniciando consumidor de eventos: %v", err)
+		} else {
+			log.Println("✅ Consumidor de eventos de pago iniciado (escuchando payment.completed.subscription)")
+		}
+	}
+
+	// 7. Inicializar Controllers (Capa HTTP) con DI
 	planController := controllers.NewPlanController(planService)
 	subscriptionController := controllers.NewSubscriptionController(subscriptionService, healthService)
 
-	// 7. Configurar Gin Router
+	// 8. Configurar Gin Router
 	router := gin.Default()
 	router.Use(middleware.CORS())
 
-	// 8. Registrar Rutas
+	// 9. Registrar Rutas
 	registerRoutes(router, planController, subscriptionController, cfg)
 
-	// 9. Iniciar servidor
+	// 10. Iniciar servidor
 	log.Printf("🚀 Subscriptions API corriendo en puerto %s", cfg.Port)
 	log.Println("📦 Arquitectura: Controllers → Services → Repositories")
 	log.Println("💉 Dependency Injection: Activada")

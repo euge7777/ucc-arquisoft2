@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ClipboardList, Check, AlertCircle } from 'lucide-react';
 import { getMockSuscripcionByUserId, mockApiDelay } from '../data/mockData';
 import '../styles/MiSuscripcion.css';
 
@@ -83,7 +84,9 @@ const MiSuscripcion = () => {
         return (
             <div className="mi-suscripcion-container">
                 <div className="no-suscripcion">
-                    <div className="no-suscripcion-icon">📋</div>
+                    <div className="no-suscripcion-icon">
+                        <ClipboardList size={48} />
+                    </div>
                     <h2>No tenés una suscripción activa</h2>
                     <p>Suscribite a uno de nuestros planes para acceder a todas las actividades</p>
                     <button
@@ -144,14 +147,15 @@ const MiSuscripcion = () => {
                         {suscripcion.metadata?.auto_renovacion && (
                             <div className="detalle-item">
                                 <span className="detalle-label">Auto-renovación:</span>
-                                <span className="detalle-valor renovacion-activa">Activada ✓</span>
+                                <span className="detalle-valor renovacion-activa"><Check size={16} className="inline mr-1" /> Activada</span>
                             </div>
                         )}
                     </div>
 
                     {proximoVencer && (
                         <div className="alerta-vencimiento">
-                            ⚠️ Tu suscripción vence pronto. Renovála para seguir disfrutando de los beneficios.
+                            <AlertCircle size={20} className="inline mr-2" />
+                            Tu suscripción vence pronto. Renovála para seguir disfrutando de los beneficios.
                         </div>
                     )}
 
@@ -160,7 +164,7 @@ const MiSuscripcion = () => {
                         <ul>
                             {suscripcion.plan?.beneficios?.map((beneficio, index) => (
                                 <li key={index}>
-                                    <span className="check-icon">✓</span>
+                                    <span className="check-icon"><Check size={20} /></span>
                                     {beneficio}
                                 </li>
                             ))}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Check } from 'lucide-react';
 import { mockPlanes } from '../data/mockData';
 import '../styles/Planes.css';
 
@@ -73,7 +74,7 @@ const Planes = () => {
                             <ul>
                                 {plan.beneficios.map((beneficio, index) => (
                                     <li key={index}>
-                                        <span className="check-icon">✓</span>
+                                        <span className="check-icon"><Check size={20} /></span>
                                         {beneficio}
                                     </li>
                                 ))}

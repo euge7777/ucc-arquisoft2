@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CreditCard, DollarSign, Building2, Wallet, FileText, CheckSquare, Target } from 'lucide-react';
 import { PAYMENTS_API } from '../config/api';
 import '../styles/Pagos.css';
 
@@ -17,7 +18,11 @@ const Pagos = () => {
     const fetchPagos = async () => {
         try {
             setLoading(true);
-            const response = await fetch(PAYMENTS_API.paymentsByUser(userId));
+            const response = await fetch(PAYMENTS_API.paymentsByUser(userId), {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
 
             if (!response.ok) {
                 throw new Error("Error al cargar pagos");
@@ -68,15 +73,15 @@ const Pagos = () => {
     const getMetodoPagoIcono = (metodo) => {
         switch (metodo) {
             case 'credit_card':
-                return '💳';
+                return <CreditCard size={18} className="inline mr-2" />;
             case 'debit_card':
-                return '💳';
+                return <CreditCard size={18} className="inline mr-2" />;
             case 'cash':
-                return '💵';
+                return <DollarSign size={18} className="inline mr-2" />;
             case 'transfer':
-                return '🏦';
+                return <Building2 size={18} className="inline mr-2" />;
             default:
-                return '💰';
+                return <Wallet size={18} className="inline mr-2" />;
         }
     };
 
@@ -128,7 +133,9 @@ const Pagos = () => {
 
             {pagosFiltrados.length === 0 ? (
                 <div className="no-pagos">
-                    <div className="no-pagos-icon">💳</div>
+                    <div className="no-pagos-icon">
+                        <CreditCard size={48} />
+                    </div>
                     <h2>No hay pagos registrados</h2>
                     <p>Cuando realices un pago, aparecerá aquí</p>
                     <button
@@ -145,7 +152,7 @@ const Pagos = () => {
                             <div className="pago-header">
                                 <div className="pago-tipo">
                                     <span className="tipo-icono">
-                                        {pago.entity_type === 'subscription' ? '📋' : '🎯'}
+                                        {pago.entity_type === 'subscription' ? <CheckSquare size={20} /> : <Target size={20} />}
                                     </span>
                                     <div className="tipo-info">
                                         <span className="tipo-label">
@@ -219,7 +226,8 @@ const Pagos = () => {
                             <div className="pago-acciones">
                                 {pago.status === 'completed' && (
                                     <button className="btn-descargar-recibo">
-                                        📄 Descargar Recibo
+                                        <FileText size={18} className="inline mr-2" />
+                                        Descargar Recibo
                                     </button>
                                 )}
                                 {pago.status === 'pending' && (

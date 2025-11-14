@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { LayoutDashboard, Dumbbell, ClipboardList, MapPin, CreditCard, DollarSign, Settings, LogOut, LogIn } from "lucide-react";
 import "../styles/Header.css";
 
 
@@ -21,24 +22,51 @@ const Header = ( ) => {
                     <h1 className="header-title" onClick={() => navigate("/")}>GymPro</h1>
                     <div className="header-links">
                         {isLoggedIn && !isAdmin && (
-                            <a href="/dashboard">Dashboard 📊</a>
+                            <a href="/dashboard" className="nav-link">
+                                <LayoutDashboard size={20} />
+                                Dashboard
+                            </a>
                         )}
-                        <a href="/actividades">Actividades 🏋🏽‍♂️</a>
-                        <a href="/planes">Planes 📋</a>
-                        <a href="/sucursales">Sucursales 📍</a>
+                        <a href="/actividades" className="nav-link">
+                            <Dumbbell size={20} />
+                            Actividades
+                        </a>
+                        <a href="/planes" className="nav-link">
+                            <ClipboardList size={20} />
+                            Planes
+                        </a>
+                        <a href="/sucursales" className="nav-link">
+                            <MapPin size={20} />
+                            Sucursales
+                        </a>
                         {isLoggedIn && !isAdmin && (
                             <>
-                                <a href="/mi-suscripcion">Mi Suscripción 💳</a>
-                                <a href="/pagos">Pagos 💰</a>
+                                <a href="/mi-suscripcion" className="nav-link">
+                                    <CreditCard size={20} />
+                                    Mi Suscripción
+                                </a>
+                                <a href="/pagos" className="nav-link">
+                                    <DollarSign size={20} />
+                                    Pagos
+                                </a>
                             </>
                         )}
                         {isAdmin && (
-                            <a href="/admin">Panel Admin 👨🏼‍🔧</a>
+                            <a href="/admin" className="nav-link">
+                                <Settings size={20} />
+                                Panel Admin
+                            </a>
                         )}
                         {isLoggedIn ? (
-                            <button onClick={logout}>Cerrar sesión ✖️</button>
+                            <button onClick={logout} className="nav-logout">
+                                <LogOut size={20} />
+                                Cerrar sesión
+                            </button>
                         ) : (
-                            <a href="/login">Iniciar Sesión ⏫</a>
+                            <a href="/login" className="nav-link">
+                                <LogIn size={20} />
+                                Iniciar Sesión
+                            </a>
                         )}
                     </div>
                 </nav>

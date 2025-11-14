@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Edit, Trash2, X, Info } from 'lucide-react';
 import { mockPlanes } from '../data/mockData';
 import '../styles/AdminPlanes.css';
 
@@ -39,7 +40,7 @@ const AdminPlanes = () => {
             </div>
 
             <div className="alert-info">
-                ℹ️ Los planes se gestionarán con la API real cuando subscriptions-api esté disponible
+                <Info size={20} className="inline mr-2" /> Los planes se gestionarán con la API real cuando subscriptions-api esté disponible
             </div>
 
             <div className="planes-table-container">
@@ -90,14 +91,14 @@ const AdminPlanes = () => {
                                         onClick={() => handleEditar(plan)}
                                         title="Editar"
                                     >
-                                        ✏️
+                                        <Edit size={18} />
                                     </button>
                                     <button
                                         className="btn-icon btn-eliminar"
                                         onClick={() => handleEliminar(plan.id)}
                                         title="Eliminar"
                                     >
-                                        🗑️
+                                        <Trash2 size={18} />
                                     </button>
                                 </td>
                             </tr>
@@ -110,7 +111,7 @@ const AdminPlanes = () => {
                 <div className="modal-overlay" onClick={() => setMostrarModal(false)}>
                     <div className="modal-content-plan" onClick={(e) => e.stopPropagation()}>
                         <button className="modal-close" onClick={() => setMostrarModal(false)}>
-                            ✕
+                            <X size={24} />
                         </button>
                         <h3>{planEditando ? 'Editar Plan' : 'Nuevo Plan'}</h3>
                         <div className="alert-info">

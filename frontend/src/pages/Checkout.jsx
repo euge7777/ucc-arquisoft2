@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { CreditCard, DollarSign, MapPin, Lock, Check, Phone } from 'lucide-react';
 import { getMockPlanById, createMockSuscripcion } from '../data/mockData';
 import { PAYMENTS_API } from '../config/api';
 import '../styles/Checkout.css';
@@ -173,7 +174,7 @@ const Checkout = () => {
                                     checked={formData.payment_method === 'credit_card'}
                                     onChange={handleInputChange}
                                 />
-                                <span>💳 Tarjeta de Crédito/Débito</span>
+                                <span><CreditCard size={20} className="inline mr-2" /> Tarjeta de Crédito/Débito</span>
                             </label>
                             <label className={`payment-method ${formData.payment_method === 'cash' ? 'selected' : ''}`}>
                                 <input
@@ -183,7 +184,7 @@ const Checkout = () => {
                                     checked={formData.payment_method === 'cash'}
                                     onChange={handleInputChange}
                                 />
-                                <span>💵 Efectivo (en sucursal)</span>
+                                <span><DollarSign size={20} className="inline mr-2" /> Efectivo (en sucursal)</span>
                             </label>
                         </div>
 
@@ -243,7 +244,7 @@ const Checkout = () => {
 
                         {formData.payment_method === 'cash' && (
                             <div className="cash-info">
-                                <p>📍 Podés abonar en cualquiera de nuestras sucursales.</p>
+                                <p><MapPin size={18} className="inline mr-2" /> Podés abonar en cualquiera de nuestras sucursales.</p>
                                 <p>Recordá llevar tu DNI y mencionar que estás abonando el plan <strong>{plan.nombre}</strong>.</p>
                             </div>
                         )}
@@ -293,15 +294,15 @@ const Checkout = () => {
 
                 <div className="checkout-info-section">
                     <div className="info-box">
-                        <h3>🔒 Pago Seguro</h3>
+                        <h3><Lock size={24} className="inline mr-2" /> Pago Seguro</h3>
                         <p>Tu información está protegida con encriptación SSL</p>
                     </div>
                     <div className="info-box">
-                        <h3>✓ Garantía</h3>
+                        <h3><Check size={24} className="inline mr-2" /> Garantía</h3>
                         <p>7 días de garantía. Si no estás satisfecho, te devolvemos tu dinero.</p>
                     </div>
                     <div className="info-box">
-                        <h3>📞 Soporte</h3>
+                        <h3><Phone size={24} className="inline mr-2" /> Soporte</h3>
                         <p>¿Necesitás ayuda? Contactanos al 0351-123-4567</p>
                     </div>
                 </div>

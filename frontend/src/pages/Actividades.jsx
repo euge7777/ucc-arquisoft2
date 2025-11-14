@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import EditarActividadModal from '../components/EditarActividadModal';
+import { Search, Edit, Trash2, X, Check, ChevronUp, ChevronDown } from 'lucide-react';
 import "../styles/Actividades.css";
 import { useNavigate } from "react-router-dom";
+import { ACTIVITIES_API } from '../config/api';
 
 const Actividades = () => {
     const [actividades, setActividades] = useState([]);
@@ -30,7 +32,7 @@ const Actividades = () => {
 
     const fetchActividades = async () => {
         try {
-            const response = await fetch("http://localhost:8080/actividades");
+            const response = await fetch(ACTIVITIES_API.actividades);
             if (response.ok) {
                 const data = await response.json();
                 console.log("Actividades cargadas:", data);
@@ -44,14 +46,14 @@ const Actividades = () => {
     
     const fetchInscripciones = async () => {
         try {
-            const response = await fetch("http://localhost:8080/inscripciones", {
+            const response = await fetch(ACTIVITIES_API.inscripciones, {
                 headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`
             },
             });
             if (response.ok) {
                 const resp = await response.json();
                 const data = resp.filter(insc => insc.is_activa)
-                
+
                 console.log("Inscripciones cargadas:", data);
                 setInscripciones(data);
             }
@@ -113,7 +115,7 @@ const Actividades = () => {
         }
 
         try {
-            const response = await fetch("http://localhost:8080/inscripciones", {
+            const response = await fetch(ACTIVITIES_API.inscripciones, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -143,7 +145,7 @@ const Actividades = () => {
     
     const handleUnenrolling = async (id_actividad) => {
         try {
-            const response = await fetch("http://localhost:8080/inscripciones", {
+            const response = await fetch(ACTIVITIES_API.inscripciones, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -191,7 +193,7 @@ const Actividades = () => {
         if (window.confirm('¿Estás seguro de que deseas eliminar esta actividad?')) {
             try {
                 console.log("Intentando eliminar actividad con ID:", actividad.id_actividad);
-                const response = await fetch(`http://localhost:8080/actividades/${actividad.id_actividad}`, {
+                const response = await fetch(ACTIVITIES_API.actividadById(actividad.id_actividad), {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -231,7 +233,7 @@ const Actividades = () => {
             )}
             <div className="filtros-container">
                 <div className="search-wrapper">
-                    <span className="search-icon">🔍</span>
+                    <span className="search-icon"><Search size={20} /></span>
                     <input
                         type="text"
                         name="busqueda"
@@ -331,7 +333,7 @@ const Actividades = () => {
                                                     onClick={() => handleEditar(actividad)}
                                                     title="Editar"
                                                 >
-                                                    <span>✏️</span>
+                                                    <Edit size={18} />
                                                     Editar
                                                 </button>
                                                 <button
@@ -339,20 +341,23 @@ const Actividades = () => {
                                                     onClick={() => handleEliminar(actividad)}
                                                     title="Eliminar"
                                                 >
-                                                    <span>🗑️</span>
+                                                    <Trash2 size={18} />
                                                     Eliminar
                                                 </button>
                                             </>
                                         ) : (
                                             <button
                                                 className="inscripcion-button"
-                                                onClick={() => 
-                                                    estaInscripto(actividad.id_actividad) ? 
+                                                onClick={() =>
+                                                    estaInscripto(actividad.id_actividad) ?
                                                         handleUnenrolling(actividad.id_actividad) :
                                                         handleEnroling(actividad.id_actividad)
                                                 }
                                             >
-                                                {estaInscripto(actividad.id_actividad) ? "Desinscribir ❌" : "Inscribir ✔️"}
+                                                {estaInscripto(actividad.id_actividad) ?
+                                                    <><X size={18} /> Desinscribir</> :
+                                                    <><Check size={18} /> Inscribir</>
+                                                }
                                             </button>
                                         )}
                                     </>
@@ -361,7 +366,10 @@ const Actividades = () => {
                                     className="ver-mas-button"
                                     onClick={() => toggleExpand(actividad.id_actividad)}
                                 >
-                                    {expandedActividadId === actividad.id_actividad ? "Ver menos 🔼" : "Ver más 🔽"}
+                                    {expandedActividadId === actividad.id_actividad ?
+                                        <><ChevronUp size={18} /> Ver menos</> :
+                                        <><ChevronDown size={18} /> Ver más</>
+                                    }
                                 </button>
                             </div>
                         </div>

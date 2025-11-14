@@ -93,11 +93,12 @@
 }
 
 .actividad-horario::before {
-    content: "🕒";
+    content: "•";
     position: absolute;
     left: 0;
     top: 50%;
     transform: translateY(-50%);
+    font-size: 1.2rem;
 }
 
 .card-actions {

@@ -64,10 +64,10 @@ func NewMySQLUsersRepository(cfg config.MySQLConfig) *MySQLUsersRepository {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	// Auto-migration (crea/actualiza tabla)
-	/*if err := db.AutoMigrate(&dao.User{}); err != nil {
+	if err := db.AutoMigrate(&dao.User{}); err != nil {
 		log.Fatalf("Error auto-migrating User table: %v", err)
 		return nil
-	}*/
+	}
 	log.Println("✅ Connected to MySQL successfully")
 
 	return &MySQLUsersRepository{

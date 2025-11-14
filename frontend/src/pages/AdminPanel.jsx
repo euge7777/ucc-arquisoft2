@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Dumbbell, ClipboardList, CreditCard, Edit, Trash2, Plus } from 'lucide-react';
 import EditarActividadModal from '../components/EditarActividadModal';
 import AgregarActividadModal from '../components/AgregarActividadModal';
 import AdminPlanes from '../components/AdminPlanes';
@@ -90,19 +91,22 @@ const AdminPanel = () => {
                     className={`tab ${tabActiva === 'actividades' ? 'tab-active' : ''}`}
                     onClick={() => setTabActiva('actividades')}
                 >
-                    🏋️ Actividades
+                    <Dumbbell size={20} className="inline mr-2" />
+                    Actividades
                 </button>
                 <button
                     className={`tab ${tabActiva === 'planes' ? 'tab-active' : ''}`}
                     onClick={() => setTabActiva('planes')}
                 >
-                    📋 Planes
+                    <ClipboardList size={20} className="inline mr-2" />
+                    Planes
                 </button>
                 <button
                     className={`tab ${tabActiva === 'pagos' ? 'tab-active' : ''}`}
                     onClick={() => setTabActiva('pagos')}
                 >
-                    💳 Pagos
+                    <CreditCard size={20} className="inline mr-2" />
+                    Pagos
                 </button>
             </div>
 
@@ -115,7 +119,7 @@ const AdminPanel = () => {
                                 className="btn-agregar"
                                 onClick={() => setMostrarAgregarModal(true)}
                             >
-                                <span>+</span>
+                                <Plus size={20} />
                                 Agregar Actividad
                             </button>
                         </div>
@@ -150,14 +154,14 @@ const AdminPanel = () => {
                                                     onClick={() => handleEditar(actividad)}
                                                     title="Editar"
                                                 >
-                                                    ✏️
+                                                    <Edit size={18} />
                                                 </button>
                                                 <button
                                                     className="action-button delete-button"
                                                     onClick={() => handleEliminar(actividad)}
                                                     title="Eliminar"
                                                 >
-                                                    🗑️
+                                                    <Trash2 size={18} />
                                                 </button>
                                             </td>
                                         </tr>

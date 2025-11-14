@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MapPin, Phone, Mail, Clock, Check, Star, Target, Car, Accessibility, X } from 'lucide-react';
 import { mockSucursales } from '../data/mockData';
 import '../styles/Sucursales.css';
 
@@ -50,7 +51,7 @@ const Sucursales = () => {
                         className={`sucursal-card ${sucursal.destacada ? 'destacada' : ''}`}
                     >
                         {sucursal.destacada && (
-                            <div className="destacada-badge">⭐ Destacada</div>
+                            <div className="destacada-badge"><Star size={18} className="inline mr-2" /> Destacada</div>
                         )}
 
                         <div className="sucursal-imagen">
@@ -68,22 +69,22 @@ const Sucursales = () => {
 
                             <div className="sucursal-info">
                                 <div className="info-item">
-                                    <span className="info-icon">📍</span>
+                                    <span className="info-icon"><MapPin size={20} /></span>
                                     <span className="info-texto">{sucursal.direccion}</span>
                                 </div>
 
                                 <div className="info-item">
-                                    <span className="info-icon">📞</span>
+                                    <span className="info-icon"><Phone size={20} /></span>
                                     <span className="info-texto">{sucursal.telefono}</span>
                                 </div>
 
                                 <div className="info-item">
-                                    <span className="info-icon">📧</span>
+                                    <span className="info-icon"><Mail size={20} /></span>
                                     <span className="info-texto">{sucursal.email}</span>
                                 </div>
 
                                 <div className="info-item horarios">
-                                    <span className="info-icon">🕐</span>
+                                    <span className="info-icon"><Clock size={20} /></span>
                                     <span className="info-texto">{sucursal.horarios}</span>
                                 </div>
                             </div>
@@ -93,7 +94,7 @@ const Sucursales = () => {
                                 <div className="servicios-lista">
                                     {sucursal.servicios.map((servicio, index) => (
                                         <span key={index} className="servicio-tag">
-                                            ✓ {servicio}
+                                            <Check size={16} className="inline mr-1" /> {servicio}
                                         </span>
                                     ))}
                                 </div>
@@ -104,19 +105,19 @@ const Sucursales = () => {
                                     className="btn-ver-mapa"
                                     onClick={() => handleVerMapa(sucursal.direccion)}
                                 >
-                                    📍 Ver en Mapa
+                                    <MapPin size={18} className="inline mr-2" /> Ver en Mapa
                                 </button>
                                 <button
                                     className="btn-llamar"
                                     onClick={() => handleLlamar(sucursal.telefono)}
                                 >
-                                    📞 Llamar
+                                    <Phone size={18} className="inline mr-2" /> Llamar
                                 </button>
                                 <button
                                     className="btn-email"
                                     onClick={() => handleEmail(sucursal.email)}
                                 >
-                                    📧 Email
+                                    <Mail size={18} className="inline mr-2" /> Email
                                 </button>
                             </div>
 
@@ -133,15 +134,15 @@ const Sucursales = () => {
 
             <div className="sucursales-info-adicional">
                 <div className="info-box">
-                    <h3>🎯 ¿Primera vez?</h3>
+                    <h3><Target size={24} className="inline mr-2" /> ¿Primera vez?</h3>
                     <p>Visitá cualquiera de nuestras sucursales y obtené una clase de prueba gratuita</p>
                 </div>
                 <div className="info-box">
-                    <h3>🚗 Estacionamiento</h3>
+                    <h3><Car size={24} className="inline mr-2" /> Estacionamiento</h3>
                     <p>Todas nuestras sucursales cuentan con estacionamiento disponible</p>
                 </div>
                 <div className="info-box">
-                    <h3>♿ Accesibilidad</h3>
+                    <h3><Accessibility size={24} className="inline mr-2" /> Accesibilidad</h3>
                     <p>Instalaciones completamente accesibles para personas con movilidad reducida</p>
                 </div>
             </div>
@@ -154,7 +155,7 @@ const Sucursales = () => {
                             className="modal-close"
                             onClick={() => setSucursalSeleccionada(null)}
                         >
-                            ✕
+                            <X size={24} />
                         </button>
 
                         <div className="modal-header">
@@ -180,7 +181,7 @@ const Sucursales = () => {
                                 <h3>Servicios e Instalaciones</h3>
                                 <ul>
                                     {sucursalSeleccionada.servicios.map((servicio, index) => (
-                                        <li key={index}>✓ {servicio}</li>
+                                        <li key={index}><Check size={18} className="inline mr-2" /> {servicio}</li>
                                     ))}
                                 </ul>
                             </div>
@@ -190,13 +191,13 @@ const Sucursales = () => {
                                     className="btn-ver-mapa"
                                     onClick={() => handleVerMapa(sucursalSeleccionada.direccion)}
                                 >
-                                    📍 Cómo Llegar
+                                    <MapPin size={18} className="inline mr-2" /> Cómo Llegar
                                 </button>
                                 <button
                                     className="btn-contactar"
                                     onClick={() => handleLlamar(sucursalSeleccionada.telefono)}
                                 >
-                                    📞 Contactar
+                                    <Phone size={18} className="inline mr-2" /> Contactar
                                 </button>
                             </div>
                         </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { CreditCard, CheckCircle2, Clock, DollarSign, RefreshCw } from 'lucide-react';
 import { PAYMENTS_API } from '../config/api';
 import '../styles/AdminPagos.css';
 
@@ -98,34 +99,35 @@ const AdminPagos = () => {
             <div className="admin-pagos-header">
                 <h2>Gestión de Pagos</h2>
                 <button className="btn-refrescar" onClick={fetchPagos}>
-                    🔄 Actualizar
+                    <RefreshCw size={20} className="inline mr-2" />
+                    Actualizar
                 </button>
             </div>
 
             <div className="estadisticas-grid">
                 <div className="stat-card-admin">
-                    <div className="stat-icon">💳</div>
+                    <div className="stat-icon"><CreditCard size={24} /></div>
                     <div className="stat-info">
                         <span className="stat-value">{estadisticas.total}</span>
                         <span className="stat-label">Total Pagos</span>
                     </div>
                 </div>
                 <div className="stat-card-admin success">
-                    <div className="stat-icon">✓</div>
+                    <div className="stat-icon"><CheckCircle2 size={24} /></div>
                     <div className="stat-info">
                         <span className="stat-value">{estadisticas.completados}</span>
                         <span className="stat-label">Completados</span>
                     </div>
                 </div>
                 <div className="stat-card-admin warning">
-                    <div className="stat-icon">⏳</div>
+                    <div className="stat-icon"><Clock size={24} /></div>
                     <div className="stat-info">
                         <span className="stat-value">{estadisticas.pendientes}</span>
                         <span className="stat-label">Pendientes</span>
                     </div>
                 </div>
                 <div className="stat-card-admin money">
-                    <div className="stat-icon">💰</div>
+                    <div className="stat-icon"><DollarSign size={24} /></div>
                     <div className="stat-info">
                         <span className="stat-value">${estadisticas.montoTotal.toFixed(2)}</span>
                         <span className="stat-label">Ingresos</span>
@@ -195,7 +197,7 @@ const AdminPagos = () => {
                                         ${pago.amount?.toFixed(2)} {pago.currency}
                                     </td>
                                     <td>
-                                        {pago.payment_method === 'credit_card' ? '💳' : '💵'} {pago.payment_method}
+                                        {pago.payment_method === 'credit_card' ? <CreditCard size={18} className="inline mr-2" /> : <DollarSign size={18} className="inline mr-2" />} {pago.payment_method}
                                     </td>
                                     <td>
                                         <span className={`badge-estado ${getEstadoBadgeClass(pago.status)}`}>

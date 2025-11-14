@@ -184,6 +184,60 @@ func (s *SubscriptionService) CancelSubscription(ctx context.Context, id string)
 	return nil
 }
 
+// ActivateSubscriptionFromPayment - Activa una suscripción cuando se completa un pago
+func (s *SubscriptionService) ActivateSubscriptionFromPayment(ctx context.Context, subscriptionID, paymentID string) error {
+	objID, err := primitive.ObjectIDFromHex(subscriptionID)
+	if err != nil {
+		return fmt.Errorf("ID de suscripción inválido: %w", err)
+	}
+
+	// 1. Obtener la suscripción actual
+	subscription, err := s.subscriptionRepo.FindByID(ctx, objID)
+	if err != nil {
+		return fmt.Errorf("suscripción no encontrada: %w", err)
+	}
+
+	// 2. Verificar que la suscripción esté en estado pendiente_pago
+	if subscription.Estado != "pendiente_pago" {
+		return fmt.Errorf("la suscripción no está en estado pendiente_pago (estado actual: %s)", subscription.Estado)
+	}
+
+	// 3. Obtener el plan para calcular la duración
+	plan, err := s.planRepo.FindByID(ctx, subscription.PlanID)
+	if err != nil {
+		return fmt.Errorf("plan no encontrado: %w", err)
+	}
+
+	// 4. Actualizar estado a "activa" y configurar fechas
+	now := time.Now()
+	subscription.Estado = "activa"
+	subscription.PagoID = paymentID
+	subscription.FechaInicio = now
+	subscription.FechaVencimiento = now.AddDate(0, 0, plan.DuracionDias)
+	subscription.UpdatedAt = now
+
+	// 5. Guardar en repositorio
+	if err := s.subscriptionRepo.UpdateStatus(ctx, objID, "activa", paymentID); err != nil {
+		return fmt.Errorf("error actualizando suscripción: %w", err)
+	}
+
+	// 6. Publicar evento de activación
+	eventData := map[string]interface{}{
+		"estado":             "activa",
+		"pago_id":            paymentID,
+		"fecha_inicio":       subscription.FechaInicio,
+		"fecha_vencimiento":  subscription.FechaVencimiento,
+		"usuario_id":         subscription.UsuarioID,
+		"plan_id":            subscription.PlanID.Hex(),
+	}
+	s.eventPublisher.PublishSubscriptionEvent("activated", subscriptionID, eventData)
+
+	fmt.Printf("✅ Suscripción %s activada exitosamente (UserID: %s, PlanID: %s, Vencimiento: %s)\n",
+		subscriptionID, subscription.UsuarioID, subscription.PlanID.Hex(), subscription.FechaVencimiento.Format("2006-01-02"))
+
+	return nil
+}
+
 // mapSubscriptionToResponse - Helper para mapear entidad a DTO
 func (s *SubscriptionService) mapSubscriptionToResponse(subscription *entities.Subscription, planNombre string) *dtos.SubscriptionResponse {
 	var renovaciones []dtos.RenovacionResponse
