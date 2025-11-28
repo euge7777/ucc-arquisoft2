@@ -10,7 +10,7 @@ const API_BASE_URLS = {
 
 // Flag para indicar qué APIs están en desarrollo (usarán mock data)
 export const USE_MOCK = {
-  subscriptions: true,  // API en desarrollo por otro equipo
+  subscriptions: false, // Usar API real para que admin vea las suscripciones reales
   search: false,        // API operativa - usando Solr
   sucursales: true      // Funcionalidad nueva, backend pendiente
 };

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { PAYMENTS_API, USERS_API } from '../config/api';
+import { handleSessionExpired, isAuthError } from '../utils/auth';
 import '../styles/AdminPagos.css';
 import { useToastContext } from '../context/ToastContext';
+import { useNavigate } from 'react-router-dom';
 
 const AdminPagos = () => {
     const [pagos, setPagos] = useState([]);
@@ -18,6 +20,7 @@ const AdminPagos = () => {
     });
     const [paginaActual, setPaginaActual] = useState(1);
     const pagosPorPagina = 10;
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchPagos();
@@ -58,6 +61,11 @@ const AdminPagos = () => {
             console.log('[AdminPagos] Response status:', response.status);
             console.log('[AdminPagos] Response headers:', response.headers);
             console.log('[AdminPagos] ====== DEBUG END ======');
+
+            if (isAuthError(response)) {
+                handleSessionExpired(toast, navigate);
+                return;
+            }
 
             if (!response.ok) {
                 throw new Error("Error al cargar pagos");
@@ -138,10 +146,12 @@ const AdminPagos = () => {
         }
 
         try {
+            const token = localStorage.getItem('access_token');
             const response = await fetch(PAYMENTS_API.approveCashPayment(pago.id), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 }
             });
 
@@ -171,10 +181,12 @@ const AdminPagos = () => {
         const reason = prompt('¿Por qué rechazas este pago? (opcional)');
 
         try {
+            const token = localStorage.getItem('access_token');
             const response = await fetch(PAYMENTS_API.rejectCashPayment(pago.id), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ reason: reason || 'Rechazado por administrador' })
             });

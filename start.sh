@@ -12,19 +12,26 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Usar puertos por defecto directamente - más rápido y confiable
-USERS_API_PORT=5005
-SUBSCRIPTIONS_API_PORT=5004
-ACTIVITIES_API_PORT=5003
-PAYMENTS_API_PORT=5001
-SEARCH_API_PORT=5002
-MYSQL_PORT=3307
-MONGO_PORT=27017
-RABBITMQ_AMQP_PORT=5672
-RABBITMQ_MGMT_PORT=15672
-MEMCACHED_PORT=11211
-SOLR_PORT=8983
-FRONTEND_PORT=5173
+# Cargar variables desde .env (si existe) para mantener consistencia con docker-compose y el frontend
+if [ -f ".env" ]; then
+    set -a
+    source ".env"
+    set +a
+fi
+
+# Usar puertos por defecto (alineados con docker-compose y frontend)
+USERS_API_PORT=${USERS_API_PORT:-8080}
+SUBSCRIPTIONS_API_PORT=${SUBSCRIPTIONS_API_PORT:-8081}
+ACTIVITIES_API_PORT=${ACTIVITIES_API_PORT:-8082}
+PAYMENTS_API_PORT=${PAYMENTS_API_PORT:-8083}
+SEARCH_API_PORT=${SEARCH_API_PORT:-8084}
+MYSQL_EXTERNAL_PORT=${MYSQL_EXTERNAL_PORT:-3307}
+MONGO_EXTERNAL_PORT=${MONGO_EXTERNAL_PORT:-27017}
+RABBITMQ_AMQP_PORT=${RABBITMQ_AMQP_PORT:-5672}
+RABBITMQ_MANAGEMENT_PORT=${RABBITMQ_MANAGEMENT_PORT:-15672}
+MEMCACHED_PORT=${MEMCACHED_PORT:-11211}
+SOLR_PORT=${SOLR_PORT:-8983}
+FRONTEND_PORT=${FRONTEND_PORT:-5173}
 
 echo -e "${YELLOW}📋 Paso 1: Configurando puertos...${NC}"
 
@@ -34,10 +41,10 @@ echo "    - Subscriptions API: $SUBSCRIPTIONS_API_PORT"
 echo "    - Activities API: $ACTIVITIES_API_PORT"
 echo "    - Payments API: $PAYMENTS_API_PORT"
 echo "    - Search API: $SEARCH_API_PORT"
-echo "    - MySQL: $MYSQL_PORT"
-echo "    - MongoDB: $MONGO_PORT"
+echo "    - MySQL: $MYSQL_EXTERNAL_PORT"
+echo "    - MongoDB: $MONGO_EXTERNAL_PORT"
 echo "    - RabbitMQ AMQP: $RABBITMQ_AMQP_PORT"
-echo "    - RabbitMQ Management: $RABBITMQ_MGMT_PORT"
+echo "    - RabbitMQ Management: $RABBITMQ_MANAGEMENT_PORT"
 echo "    - Memcached: $MEMCACHED_PORT"
 echo "    - Solr: $SOLR_PORT"
 echo "    - Frontend: $FRONTEND_PORT"
@@ -48,13 +55,13 @@ export SUBSCRIPTIONS_API_PORT
 export ACTIVITIES_API_PORT
 export PAYMENTS_API_PORT
 export SEARCH_API_PORT
-export MYSQL_EXTERNAL_PORT=$MYSQL_PORT
-export MONGO_EXTERNAL_PORT=$MONGO_PORT
 export RABBITMQ_AMQP_PORT
-export RABBITMQ_MANAGEMENT_PORT=$RABBITMQ_MGMT_PORT
+export RABBITMQ_MANAGEMENT_PORT
 export MEMCACHED_PORT
 export SOLR_PORT
 export FRONTEND_PORT
+export MYSQL_EXTERNAL_PORT
+export MONGO_EXTERNAL_PORT
 
 echo ""
 echo -e "${YELLOW}📋 Paso 2: Deteniendo contenedores anteriores...${NC}"
